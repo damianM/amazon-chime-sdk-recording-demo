@@ -25,6 +25,7 @@ let response = {
  
 exports.handler = function(event, context, callback) {
     let meetingURL = "";
+    let kosmosId = "";
     let taskId = "";
     let recordingAction = "";
     
@@ -38,13 +39,17 @@ exports.handler = function(event, context, callback) {
     
     switch(recordingAction.toLowerCase()) {
         case 'start':
-            if(event.queryStringParameters && event.queryStringParameters.meetingURL) {
+            if(event.queryStringParameters && event.queryStringParameters.meetingURL && event.queryStringParameters.kosmosId) {
                 console.log("Meeting URL: " + event.queryStringParameters.meetingURL);
+                console.log("Kosmos Id: " + event.queryStringParameters.kosmosId);
+
                 meetingURL = decodeURIComponent(event.queryStringParameters.meetingURL);
-                return startRecording(event, context, callback, meetingURL);
+                kosmosId = decodeURIComponent(event.queryStringParameters.kosmosId);
+
+                return startRecording(event, context, callback, meetingURL, kosmosId);
             } else {
                 responseBody = {
-                    message: "Missing parameter: meetingURL",
+                    message: "Missing parameter: meetingURL or kosmosId",
                     input: event
                 };
                 response = {
@@ -87,7 +92,7 @@ exports.handler = function(event, context, callback) {
     callback(null, response);
 };
 
-function startRecording(event, context, callback, meetingUrl) {
+function startRecording(event, context, callback, meetingUrl, kosmosId) {
     let ecsRunTaskParams = {
         cluster: ecsClusterArn,
         launchType: "EC2",
@@ -99,6 +104,10 @@ function startRecording(event, context, callback, meetingUrl) {
                         { 
                             name: "MEETING_URL",
                             value: meetingUrl
+                        },
+                        {
+                            name: "KOSMOS_ID",
+                            value: kosmosId
                         },
                         {
                             name: "RECORDING_ARTIFACTS_BUCKET",

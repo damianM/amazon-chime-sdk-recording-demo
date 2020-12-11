@@ -5,7 +5,8 @@ const { spawn } = require('child_process');
 const { S3Uploader } = require('./utils/upload');
 
 const MEETING_URL = process.env.MEETING_URL || 'Not present in environment';
-console.log(`[recording process] MEETING_URL: ${MEETING_URL}`);
+const KOSMOS_ID = process.env.KOSMOS_ID || 'Not present in environment - KOSMOS_ID';
+console.log(`[recording process] MEETING_URL: ${MEETING_URL}, KOSMOS_ID: ${KOSMOS_ID}`);
 
 const args = process.argv.slice(2);
 const BUCKET_NAME = args[0];
@@ -73,7 +74,8 @@ const year = timestamp.getFullYear();
 const month = timestamp.getMonth() + 1;
 const day = timestamp.getDate();
 const hour = timestamp.getUTCHours();
-const fileName = `${year}/${month}/${day}/${hour}/${fileTimestamp}.mp4`;
+// const fileName = `${year}/${month}/${day}/${hour}/${fileTimestamp}.mp4`;
+const fileName = `uploads/kosmos_session/{KOSMOS_ID}/audio/{KOSMOS_ID}.mp4`;
 new S3Uploader(BUCKET_NAME, fileName).uploadStream(transcodeStreamToOutput.stdout);
 
 // event handler for docker stop, not exit until upload completes
